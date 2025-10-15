@@ -15,8 +15,8 @@ MonoBehaviour:
   maxPlayers: 8
   isLocked: 0
   isPrivate: 0
-  sessionName: Test Session
+  sessionName: ddd
   networkConnectionType: 0
   listenIp: 0.0.0.0
   port: 0
-  publishIp: 127.0.0.1
+  publishIp: 174.80.131.189

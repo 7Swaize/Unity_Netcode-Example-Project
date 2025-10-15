@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Multiplayer;
 using UnityEngine;
-using UnityEngine.Events;
 using VS.Utilities.Singletons;
 
 namespace VS.NetcodeExampleProject.Networking {

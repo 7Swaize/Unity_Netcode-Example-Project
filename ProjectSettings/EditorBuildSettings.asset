@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ExampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Widgets/Scenes/WidgetsQuickstart.unity
     guid: 36de9a4f556fa32498473c50f72d498e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Widgets/Scenes/WidgetsQuickstart.unity
     guid: b5a8af943f59d2e4b832c7de6c87c260
   m_configObjects:
