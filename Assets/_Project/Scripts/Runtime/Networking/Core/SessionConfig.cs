@@ -19,12 +19,12 @@ namespace VS.NetcodeExampleProject.Networking {
         [Header("Network Settings")]
         public NetworkConnectionType networkConnectionType = NetworkConnectionType.Relay;
         public string listenIp = "0.0.0.0";
-        public int port = 0; // maybe should be 7777?
+        public int port = 7777;
 
         [HideInInspector] public string publishIp;
         
         private void OnEnable() {
-            publishIp = GetExternalIPAddress();
+            publishIp = GetLocalIPAddress();
             Debug.Log($"Using {publishIp} for publish ip");
         }
         
@@ -37,16 +37,29 @@ namespace VS.NetcodeExampleProject.Networking {
             IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in host.AddressList) {
                 if (ip.AddressFamily == AddressFamily.InterNetwork) {
-                    string ipStr = ip.ToString();
-                    // ip address in lan | would recommend relay for anything public (not lan)
-                    if (ipStr.StartsWith("192.168")) { 
-                        Debug.Log($"Using {ipStr} for publish ip");
-                        return ipStr;
+                    return ip.ToString();
+                }
+            }
+            
+            return "127.0.0.1";
+        }
+        
+        
+        // Sometimes this method picks up a local IP address starting with 172.16 through 172.31
+        // If that happens, wrap the return in an if statement to filter the IP addresses, as done below.
+/*
+        private static string GetLocalIPAddress() {
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList) {
+                if (ip.AddressFamily == AddressFamily.InterNetwork) {
+                    if (ip.StartsWith("192.168")) {
+                        return ip.ToString();
                     }
                 }
             }
             
             return "127.0.0.1";
         }
+*/
     }
 }

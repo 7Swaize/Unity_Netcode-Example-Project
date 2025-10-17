@@ -18,5 +18,5 @@ MonoBehaviour:
   sessionName: ddd
   networkConnectionType: 0
   listenIp: 0.0.0.0
-  port: 0
-  publishIp: 174.80.131.189
+  port: 7777
+  publishIp: 192.168.56.1

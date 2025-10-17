@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
 using Unity.Services.Multiplayer;
 using UnityEngine;
@@ -10,6 +11,8 @@ using VS.Utilities.Singletons;
 namespace VS.NetcodeExampleProject.Networking {
     [DefaultExecutionOrder(-100)]
     public class SessionHandler : Singleton<SessionHandler> {
+        [SerializeField] private SessionConfig sessionConfig;
+        
         public ISession ActiveSession { get; private set; }
 
         public event Action OnSessionJoining = delegate { };
