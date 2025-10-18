@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using VS.NetcodeExampleProject.Player;
 
-namespace _Project.Scripts.Runtime.Weapons {
+namespace VS.NetcodeExampleProject.Weapons {
     public class ProjectileController : NetworkBehaviour {
         [Header("Bullet Settings")]
         [SerializeField] private float speed;
@@ -55,7 +55,6 @@ namespace _Project.Scripts.Runtime.Weapons {
                 OnEnemyHit.Invoke();
             }
 
-            // TODO: See why unwrapping this in 'IsSpawned' causes there to be an error
             if (IsSpawned) {
                 NetworkObject.Despawn();
             }

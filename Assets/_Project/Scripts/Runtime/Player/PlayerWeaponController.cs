@@ -1,8 +1,8 @@
-using _Project.Scripts.Runtime.Weapons;
 using Unity.Netcode;
 using UnityEngine;
 using VS.NetcodeExampleProject.Audio;
 using VS.Utilities.Input;
+using VS.NetcodeExampleProject.Weapons;
 
 namespace VS.NetcodeExampleProject.Player {
     public class PlayerWeaponController : NetworkBehaviour {
@@ -53,9 +53,8 @@ namespace VS.NetcodeExampleProject.Player {
             projectileController.OnEnemyHit += OnEnemyHitRpc;
         }
         
-        // You cannot immediately call an RPC on the calling client to subscribe to an event on the object that was spawned by the server.
-        // This is because the object has not yet been spawned on the client. (There is a tiny delay the causes this to happen).
-        // To get around this, the server will just subscribe to the event on the projectile and notify the calling client once the event is fired.
+
+        // THIS WILL NOT WORK
 /*
         [Rpc(SendTo.Owner)]
         private void RespondToCallerRpc(NetworkBehaviourReference networkObjectReference) {
@@ -67,10 +66,10 @@ namespace VS.NetcodeExampleProject.Player {
         }
 */
 
-        // TODO: Randomly invoked twice. Figure out why.
         [Rpc(SendTo.Owner)]
         private void OnEnemyHitRpc() {
             Debug.Log($"Update Score invoked from {NetworkManager.Singleton.LocalClientId}");
+            NetworkedAudioManager.Instance.PlaySoundAtPosition(0, transform.position, 1f);
         }
         
         public override void OnDestroy() {

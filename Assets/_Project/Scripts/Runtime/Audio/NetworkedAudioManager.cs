@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+// In your actual game, you should probably use a more robust system that would include:
+//      - An object pool instead of direct AudioSource object instantiation
+//      - A robust system that doesn't direct indexing into an array of audio clips (this is unmaintainable as the project scales)
+//      - A struct or scriptable object parameter that provides configurations on how the audio should be played
+//      - More methods/implementations on how audio can be played. 
 namespace VS.NetcodeExampleProject.Audio {
-    // In your actual game, you should probably use a more robust system that would include:
-    //      - An object pool instead of direct AudioSource object instantiation
-    //      - A robust system that doesn't direct indexing into an array of audio clips (this is unmaintainable as the project scales)
-    //      - A struct or scriptable object parameter that provides configurations on how the audio should be played
-    //      - More methods/implementations on how audio can be played. 
     public class NetworkedAudioManager : NetworkBehaviour {
         public static NetworkedAudioManager Instance { get; private set; }
 
@@ -39,7 +39,7 @@ namespace VS.NetcodeExampleProject.Audio {
             PlaySoundAtPositionClientRpc(clipIndex, position, volume);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.ClientsAndHost)]
         private void PlaySoundAtPositionClientRpc(int clipIndex, Vector3 position, float volume) {
             if (clipIndex < 0 || clipIndex >= audioClips.Length) {
                 Debug.LogWarning($"Invalid audio clip index: {clipIndex}");
