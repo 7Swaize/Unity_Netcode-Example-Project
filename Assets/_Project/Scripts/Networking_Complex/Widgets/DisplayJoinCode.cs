@@ -1,5 +1,4 @@
 using TMPro;
-using Unity.Netcode;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,7 +15,6 @@ namespace VS.NetcodeExampleProject.Networking {
 
         private void Start() {
             copyCodeButton.onClick.AddListener(CopyCodeToClipboard);
-            joinCodeText.text = k_emptyJoinCode;
         }
 
         public override void OnServicesInitialized() {

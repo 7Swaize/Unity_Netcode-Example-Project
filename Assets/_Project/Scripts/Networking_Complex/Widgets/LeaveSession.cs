@@ -1,22 +1,19 @@
 using Unity.Services.Multiplayer;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 namespace VS.NetcodeExampleProject.Networking {
     public class LeaveSession : SessionActionBase {
-        private void Start() {
-            sessionActionButton.interactable = false;
-        }
-
-        protected override async void SessionSessionAction() {
+        protected override async void SessionAction() {
             await SessionHandler.Instance.LeaveSessionAsync();
         }
 
         public override void OnSessionJoined(ISession session) {
             base.OnSessionJoined(session);
-            
+
+            Debug.Log($"Joined session {session.Id}");
             sessionActionButton.interactable = true;
-            sessionActionButton.onClick.AddListener(SessionSessionAction);
+            sessionActionButton.onClick.AddListener(SessionAction);
         }
         
         public override void OnSessionLeft() {

@@ -1,3 +1,4 @@
+using System;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.Events;
@@ -5,14 +6,6 @@ using UnityEngine.UI;
 
 namespace VS.NetcodeExampleProject.Networking {
     public abstract class WidgetBehaviour : MonoBehaviour, IWidget {
-        protected virtual void OnEnable() {
-            SessionWidgetEventDispatcher.Instance.RegisterWidget(this);
-        }
-
-        protected virtual void OnDisable() {
-            SessionWidgetEventDispatcher.Instance?.DeregisterWidget(this);
-        }
-        
         public virtual void OnServicesInitialized() { }
     }
     
@@ -29,12 +22,11 @@ namespace VS.NetcodeExampleProject.Networking {
         [Tooltip("Event is invoked when the user leaves the current session")]
         public UnityEvent LeftSession = new();
         
-        protected abstract void SessionSessionAction();
+        protected abstract void SessionAction();
 
         protected virtual void Awake() {
             sessionActionButton ??= GetComponentInChildren<Button>();
-            sessionActionButton.onClick.AddListener(SessionSessionAction);
-            sessionActionButton.interactable = false;
+            sessionActionButton.onClick.AddListener(SessionAction);
         }
         
         public override void OnServicesInitialized() {

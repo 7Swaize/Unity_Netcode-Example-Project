@@ -1,99 +1,163 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Services.Multiplayer;
 
 namespace VS.NetcodeExampleProject.Networking {
-    public class SessionWidgetEventDispatcher : Singleton<SessionWidgetEventDispatcher> {
+    public sealed class SessionWidgetEventDispatcher : Singleton<SessionWidgetEventDispatcher> {
+        private sealed class InterfaceRegistry {
+            private readonly Dictionary<Type, object> _map = new();
+
+            public void Register<T>(T instance) where T : class {
+                Type type = typeof(T);
+
+                if (!_map.TryGetValue(type, out object bucket)) {
+                    bucket = new List<T>();
+                    _map.Add(type, bucket);
+                }
+
+                ((List<T>)bucket).Add(instance);
+            }
+
+            public void Deregister<T>(T instance) where T : class {
+                if (_map.TryGetValue(typeof(T), out object bucket)) {
+                    ((List<T>)bucket).Remove(instance);
+                }
+            }
+
+            public List<T> Get<T>() where T : class {
+                if (_map.TryGetValue(typeof(T), out object bucket)) {
+                    return (List<T>)bucket;
+                }
+
+                return null;
+            }
+        }
+        
         private ISession _activeSession;
-        
-        private readonly List<IWidget> _widgets = new List<IWidget>();
-        private readonly List<ISessionLifecycleEvents> _sessionLifecycleListeners = new List<ISessionLifecycleEvents>();
-        private readonly List<ISessionEvents> _sessionEventListeners = new List<ISessionEvents>();
-        
-        public void Start() {
+
+        private readonly List<IWidget> _widgets = new();
+        private readonly InterfaceRegistry _registry = new();
+
+        private bool _servicesInitialized;
+
+        private void Start() {
             SessionHandler.Instance.OnSessionJoining += OnSessionJoining;
             SessionHandler.Instance.OnSessionFailedToJoin += OnSessionFailedToJoin;
             SessionHandler.Instance.OnSessionJoined += OnSessionJoined;
             SessionHandler.Instance.OnSessionLeft += OnSessionLeft;
         }
-        
+
         public void OnServicesInitialized() {
+            _servicesInitialized = true;
+
             foreach (IWidget widget in _widgets) {
                 widget.OnServicesInitialized();
             }
         }
 
         public void RegisterWidget(IWidget widget) {
-            if (widget is ISessionLifecycleEvents sessionLifecycleListener) {
-                _sessionLifecycleListeners.Add(sessionLifecycleListener);
-            }
-
-            if (widget is ISessionEvents sessionEventListener) {
-                _sessionEventListeners.Add(sessionEventListener);
-            }
-            
             _widgets.Add(widget);
+
+            TryRegister<ISessionLifecycleEvents>(widget);
+            TryRegister<ISessionEvents>(widget);
+            TryRegister<ISetupEvents>(widget);
+
+            if (_servicesInitialized) {
+                widget.OnServicesInitialized();
+            }
         }
 
         public void DeregisterWidget(IWidget widget) {
-            if (widget is ISessionLifecycleEvents sessionLifecycleListener) {
-                _sessionLifecycleListeners.Remove(sessionLifecycleListener);
-            }
-
-            if (widget is ISessionEvents sessionEventListener) {
-                _sessionEventListeners.Remove(sessionEventListener);
-            }
-            
             _widgets.Remove(widget);
+
+            TryDeregister<ISessionLifecycleEvents>(widget);
+            TryDeregister<ISessionEvents>(widget);
+            TryDeregister<ISetupEvents>(widget);
         }
         
+        private void TryRegister<T>(IWidget widget) where T : class {
+            if (widget is T t) {
+                _registry.Register(t);
+            }
+        }
+        
+        private void TryDeregister<T>(IWidget widget) where T : class {
+            if (widget is T t) {
+                _registry.Deregister(t);
+            }
+        }
+        
+        public void NotifyResetButtonClicked() {
+            List<ISetupEvents> listeners = _registry.Get<ISetupEvents>();
+            if (listeners == null) return;
+
+            foreach (ISetupEvents listener in listeners) {
+                listener.OnResetButtonClicked();
+            }
+        }
+
         private void OnSessionJoining() {
-            // Currently, I just take a snapshot of the listeners to prevent an 'InvalidOperationException'.
-            // The extra allocations shouldn't really matter.
-            foreach (ISessionLifecycleEvents sessionLifecycleListener in _sessionLifecycleListeners.ToList()) {
-                sessionLifecycleListener.OnSessionJoining();
+            List<ISessionLifecycleEvents> listeners = _registry.Get<ISessionLifecycleEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionLifecycleEvents listener in listeners) {
+                listener.OnSessionJoining();
             }
         }
-        
+
         private void OnSessionFailedToJoin(SessionException exception) {
-            foreach (ISessionLifecycleEvents sessionLifecycleListener in _sessionLifecycleListeners.ToList()) {
-                sessionLifecycleListener.OnSessionFailedToJoin(exception);
+            List<ISessionLifecycleEvents> listeners = _registry.Get<ISessionLifecycleEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionLifecycleEvents listener in listeners) {
+                listener.OnSessionFailedToJoin(exception);
             }
         }
-        
+
         private void OnSessionJoined(ISession session) {
+            _activeSession = session;
+
             session.PlayerJoined += OnPlayerJoinedSession;
             session.PlayerLeaving += OnPlayerLeftSession;
-            
-            foreach (ISessionLifecycleEvents sessionLifecycleListener in _sessionLifecycleListeners.ToList()) {
-                sessionLifecycleListener.OnSessionJoined(session);
+
+            List<ISessionLifecycleEvents> listeners = _registry.Get<ISessionLifecycleEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionLifecycleEvents listener in listeners) {
+                listener.OnSessionJoined(session);
             }
-            
-            _activeSession = session;
         }
-        
+
         private void OnSessionLeft() {
             if (_activeSession != null) {
                 _activeSession.PlayerJoined -= OnPlayerJoinedSession;
                 _activeSession.PlayerLeaving -= OnPlayerLeftSession;
+                _activeSession = null;
             }
-            
-            foreach (ISessionLifecycleEvents sessionLifecycleListener in _sessionLifecycleListeners.ToList()) {
-                sessionLifecycleListener.OnSessionLeft();
+
+            List<ISessionLifecycleEvents> listeners = _registry.Get<ISessionLifecycleEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionLifecycleEvents listener in listeners) {
+                listener.OnSessionLeft();
             }
-            
-            _activeSession = null;
         }
 
         private void OnPlayerJoinedSession(string playerId) {
-            foreach (ISessionEvents sessionEventListener in _sessionEventListeners.ToList()) {
-                sessionEventListener.OnPlayerJoinedSession(playerId);
+            List<ISessionEvents> listeners = _registry.Get<ISessionEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionEvents listener in listeners) {
+                listener.OnPlayerJoinedSession(playerId);
             }
         }
-        
+
         private void OnPlayerLeftSession(string playerId) {
-            foreach (ISessionEvents sessionEventListener in _sessionEventListeners.ToList()) {
-                sessionEventListener.OnPlayerLeftSession(playerId);
+            List<ISessionEvents> listeners = _registry.Get<ISessionEvents>();
+            if (listeners == null) return;
+
+            foreach (ISessionEvents listener in listeners) {
+                listener.OnPlayerLeftSession(playerId);
             }
         }
     }

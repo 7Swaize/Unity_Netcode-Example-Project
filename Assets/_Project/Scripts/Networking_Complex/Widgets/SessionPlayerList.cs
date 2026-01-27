@@ -12,15 +12,11 @@ namespace VS.NetcodeExampleProject.Networking {
         
         private Dictionary<string, SessionPlayerListItem> _playerListItems = new Dictionary<string, SessionPlayerListItem>();
 
-        protected override void OnEnable() {
-            base.OnEnable();
-
+        protected void OnEnable() {
             UpdatePlayerList();
         }
         
-        protected override void OnDisable() {
-            base.OnDisable();
-
+        protected void OnDisable() {
             ClearPlayerList();
         }
         

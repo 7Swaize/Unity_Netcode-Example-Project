@@ -3,7 +3,7 @@ using Unity.Services.Multiplayer;
 using UnityEngine;
 
 namespace VS.NetcodeExampleProject.Networking {
-    public class JoinSessionActionByCode : SessionActionBase {
+    public class JoinSessionActionByCode : SessionActionBase, ISetupEvents {
         [SerializeField] private TMP_InputField sessionJoinCodeField;
         
         private string _sessionJoinCode;
@@ -11,7 +11,7 @@ namespace VS.NetcodeExampleProject.Networking {
         public override void OnServicesInitialized() {
             sessionJoinCodeField.onEndEdit.AddListener(value => {
                 if (Input.GetKeyDown(KeyCode.Return) && !string.IsNullOrEmpty(value)) {
-                    SessionSessionAction();
+                    SessionAction();
                 }
             });
             
@@ -20,7 +20,7 @@ namespace VS.NetcodeExampleProject.Networking {
             });
         }
 
-        protected override async void SessionSessionAction() {
+        protected override async void SessionAction() {
             _sessionJoinCode = sessionJoinCodeField.text;
             await SessionHandler.Instance.JoinSessionByCodeAsync(_sessionJoinCode);
         }
@@ -28,6 +28,10 @@ namespace VS.NetcodeExampleProject.Networking {
         public override void OnSessionJoined(ISession session) {
             base.OnSessionJoined(session);
             
+            sessionJoinCodeField.text = string.Empty;
+        }
+
+        public void OnResetButtonClicked() {
             sessionJoinCodeField.text = string.Empty;
         }
     }
