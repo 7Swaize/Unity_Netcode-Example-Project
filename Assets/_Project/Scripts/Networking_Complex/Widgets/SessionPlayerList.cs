@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Unity.Services.Multiplayer;
+using Unity.Services.Authentication;
 using UnityEngine;
+
 
 namespace VS.NetcodeExampleProject.Networking {
     public class SessionPlayerList : WidgetBehaviour, ISessionLifecycleEvents, ISessionEvents {
@@ -12,11 +14,11 @@ namespace VS.NetcodeExampleProject.Networking {
         
         private Dictionary<string, SessionPlayerListItem> _playerListItems = new Dictionary<string, SessionPlayerListItem>();
 
-        protected void OnEnable() {
+        private void OnEnable() {
             UpdatePlayerList();
         }
         
-        protected void OnDisable() {
+        private void OnDisable() {
             ClearPlayerList();
         }
         
@@ -52,13 +54,17 @@ namespace VS.NetcodeExampleProject.Networking {
                     continue;
                 }
                 
-                SessionPlayerListItem item =  Instantiate(listItemCopy, listRoot).GetComponent<SessionPlayerListItem>();
+                SessionPlayerListItem item = Instantiate(listItemCopy, listRoot).GetComponent<SessionPlayerListItem>();
                 _playerListItems.Add(playerId, item);
 
                 string playerName = "Anonymous";
                 if (player.Properties.TryGetValue(SessionConstants.k_playerNamePropertyKey,
                         out var playerNameProperty)) {
                     playerName = playerNameProperty.Value;
+                }
+
+                if (player.Id == AuthenticationService.Instance.PlayerId) {
+                    playerName += " [Self]";
                 }
                 
                 item.Init(playerName, playerId);

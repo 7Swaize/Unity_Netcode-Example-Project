@@ -14,7 +14,7 @@ namespace VS.NetcodeExampleProject.Networking {
         public int maxPlayers = 8;
         public bool isLocked = false;
         public bool isPrivate = false;
-        [HideInInspector] public string sessionName = "Test Session";
+        [HideInInspector] public string sessionName = "Default Session Name";
         
         [Header("Client Connected Settings")]
         public Vector3 onClientConnectedPosition = Vector3.zero;
