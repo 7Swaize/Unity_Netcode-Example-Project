@@ -1,6 +1,8 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
+
 
 namespace VS.NetcodeExampleProject.Networking {
     public enum NetworkConnectionType {
@@ -14,7 +16,6 @@ namespace VS.NetcodeExampleProject.Networking {
         public int maxPlayers = 8;
         public bool isLocked = false;
         public bool isPrivate = false;
-        [HideInInspector] public string sessionName = "Default Session Name";
         
         [Header("Client Connected Settings")]
         public Vector3 onClientConnectedPosition = Vector3.zero;
@@ -30,10 +31,9 @@ namespace VS.NetcodeExampleProject.Networking {
         private void OnEnable() {
             publishIp = GetLocalIPAddress();
         }
-        
-        // https://stackoverflow.com/questions/3253701/get-public-external-ip-address
-        private static string GetExternalIPAddress() {
-            return new WebClient().DownloadString("https://ipv4.icanhazip.com/").TrimEnd();
+
+        public string GetUniqueSessionName() {
+            return Guid.NewGuid().ToString("N");
         }
         
         private static string GetLocalIPAddress() {

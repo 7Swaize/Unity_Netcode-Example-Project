@@ -40,7 +40,7 @@ namespace VS.NetcodeExampleProject.Networking {
                 MaxPlayers = config.maxPlayers,
                 IsLocked = config.isLocked,
                 IsPrivate = config.isPrivate,
-                Name = config.name,
+                Name = config.GetUniqueSessionName(),
                 PlayerProperties = playerProperties
             };
 
