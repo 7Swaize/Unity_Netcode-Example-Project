@@ -22,7 +22,7 @@ namespace VS.NetcodeExampleProject.Networking {
         public Quaternion onClientConnectedRotation = Quaternion.identity;
         
 
-        [HideInInspector] public NetworkConnectionType networkConnectionType = NetworkConnectionType.Relay;
+        [HideInInspector] public NetworkConnectionType networkConnectionType = NetworkConnectionType.Direct;
         [HideInInspector] public string listenIp = "0.0.0.0";
         [HideInInspector] public int port = 0; // may need to set it to 7777? 
 

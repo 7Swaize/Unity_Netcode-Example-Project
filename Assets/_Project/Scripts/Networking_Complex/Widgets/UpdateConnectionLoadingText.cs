@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
@@ -5,7 +6,7 @@ using Unity.Services.Multiplayer;
 using UnityEngine;
 
 namespace VS.NetcodeExampleProject.Networking {
-    public class UpdateConnectionLoadingText : WidgetBehaviour, ISessionLifecycleEvents {
+    public class UpdateConnectionLoadingText : WidgetBehaviour, ISessionLifecycleEvents, ISetupEvents {
         [SerializeField] private TMP_Text connectionLoadingText;
         [SerializeField] private int delayPerTick;
         
@@ -16,11 +17,8 @@ namespace VS.NetcodeExampleProject.Networking {
             _ = AnimateConnectionLoadingTextAsync(_connectingCts.Token);
         }
 
-        public void OnSessionJoined(ISession session) {
-            _connectingCts?.Cancel();
-            _connectingCts = null;
-            connectionLoadingText.text = string.Empty;
-        }
+        public void OnSessionJoined(ISession session) => ClearConnectionLoadingText();
+        public void OnResetButtonClicked() => ClearConnectionLoadingText();
 
         private async Task AnimateConnectionLoadingTextAsync(CancellationToken cts) {
             string baseText = "Connecting";
@@ -33,6 +31,12 @@ namespace VS.NetcodeExampleProject.Networking {
                     await Task.Delay(delayPerTick, cts);
                 }
             } catch (TaskCanceledException) { }
+        }
+        
+        private void ClearConnectionLoadingText() {
+            _connectingCts?.Cancel();
+            _connectingCts = null;
+            connectionLoadingText.text = string.Empty;
         }
     }
 }

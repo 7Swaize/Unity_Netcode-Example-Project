@@ -15,10 +15,9 @@ MonoBehaviour:
   maxPlayers: 8
   isLocked: 0
   isPrivate: 0
-  sessionName: Test Session
   onClientConnectedPosition: {x: 0, y: 0, z: 0}
   onClientConnectedRotation: {x: 0, y: 0, z: 0, w: 1}
   networkConnectionType: 1
   listenIp: 0.0.0.0
-  port: 7777
-  publishIp: 192.168.56.1
+  port: 0
+  publishIp: 
