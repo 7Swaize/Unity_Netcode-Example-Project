@@ -5,6 +5,8 @@ using Unity.Services.Authentication;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 
+// TO WATCH: https://discussions.unity.com/t/6-3-change-when-matckingmaking-fails-invalid-listen-endpoint-127-0-0-17777/1709941/7
+
 namespace VS.NetcodeExampleProject.Networking {
     /// <summary>
     /// Handles creating, joining, leaving, and managing multiplayer sessions.
@@ -43,7 +45,7 @@ namespace VS.NetcodeExampleProject.Networking {
                 Name = config.GetUniqueSessionName(),
                 PlayerProperties = playerProperties
             };
-
+            
             sessionOptions = config.networkConnectionType switch {
                 NetworkConnectionType.Direct => sessionOptions.WithDirectNetwork(config.listenIp, config.publishIp, config.port),
                 NetworkConnectionType.Relay => sessionOptions.WithRelayNetwork(),
