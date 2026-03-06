@@ -1,17 +1,19 @@
-using System;
 using UnityEngine;
+using VS.NetcodeExampleProject.Networking;
 
 namespace _Project.Scripts.Runtime.UI {
     public class SessionUIController : MonoBehaviour {
         [SerializeField] private GameObject sessionUIContainer;
         
         private void Update() {
-            if (Input.GetKeyDown(KeyCode.Tab)) {
-                sessionUIContainer.SetActive(!sessionUIContainer.activeSelf);
+            if (InputCompatibilityWrapper.CheckEscapeKeyPressed()) {
+                Cursor.lockState = Cursor.lockState == CursorLockMode.Locked
+                    ? CursorLockMode.None
+                    : CursorLockMode.Locked;
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                Cursor.lockState = CursorLockMode.None;
+            if (InputCompatibilityWrapper.CheckTabKeyPressed()) {
+                sessionUIContainer.SetActive(!sessionUIContainer.activeSelf);
             }
         }
     }

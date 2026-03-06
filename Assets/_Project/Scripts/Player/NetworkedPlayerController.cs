@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using VS.NetcodeExampleProject.Networking;
 
 // All classes that utilize netcode features must inherit from NetworkBehaviour
 public class NetworkedPlayerController : NetworkBehaviour {
@@ -52,16 +53,18 @@ public class NetworkedPlayerController : NetworkBehaviour {
         Vector3 right = Vector3.ProjectOnPlane(playerCamera.right, Vector3.up).normalized;
         Vector3 moveDir = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W))
+        // I use a custom wrapper here to accommodate for different input systems.
+        // In practice, you would replace this with your specific input handling. 
+        if (InputCompatibilityWrapper.CheckWKeyPressed(KeyDownCheckState.Continuous))
             moveDir += forward;
 
-        if (Input.GetKey(KeyCode.S))
+        if (InputCompatibilityWrapper.CheckSKeyPressed(KeyDownCheckState.Continuous))
             moveDir -= forward;
 
-        if (Input.GetKey(KeyCode.A))
+        if (InputCompatibilityWrapper.CheckAKeyPressed(KeyDownCheckState.Continuous))
             moveDir -= right;
 
-        if (Input.GetKey(KeyCode.D))
+        if (InputCompatibilityWrapper.CheckDKeyPressed(KeyDownCheckState.Continuous))
             moveDir += right;
 
         if (moveDir.sqrMagnitude > 0f)
@@ -70,12 +73,13 @@ public class NetworkedPlayerController : NetworkBehaviour {
 
     private void HandleCameraRotation() {
         // Normal input handling and camera transform modifications. Nothing netcode specific here...
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        // I use a custom wrapper here to accommodate for different input systems.
+        // In practice, you would replace this with your specific input handling. 
+        Vector2 mouseDelta = InputCompatibilityWrapper.GetMouseDelta();
 
-        transform.Rotate(Vector3.up * mouseX);
+        transform.Rotate(Vector3.up * (mouseDelta.x * mouseSensitivity));
 
-        _xRotation -= mouseY;
+        _xRotation -= mouseDelta.y * mouseSensitivity;
         _xRotation = Mathf.Clamp(_xRotation, -80f, 80f);
 
         if (playerCamera != null) {
@@ -86,7 +90,7 @@ public class NetworkedPlayerController : NetworkBehaviour {
     // This method is called every frame and checks if the player wants to fire a projectile.
     // If so, it calls the RPC to spawn the projectile on the server.
     private void HandleFiring() {
-        if (Input.GetKeyDown(KeyCode.F)) {
+        if (InputCompatibilityWrapper.CheckFKeyPressed()) {
             // It's important to send the spawn position and rotation directly in the RPC.
             // RPCs are executed on the server, and the server might not have
             // the same values for 'projectileSpawnPoint.position' and 'projectileSpawnPoint.rotation'.
